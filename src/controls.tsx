@@ -54,7 +54,7 @@ function ControlView(props: {values: Array<Field>; update: () => void; camera: U
 
     const items = sortBy(props.values, (ii) => ii.name).filter((ii) => ii.type !== 'RANGE');
     const clamp = (next: number) => Math.max(0, Math.min(items.length - 1, next));
-    const scale = 20;
+    const scale = 24;
 
     function onChange(index: number, up: boolean) {
         const control = items[index];
@@ -119,13 +119,13 @@ function ControlView(props: {values: Array<Field>; update: () => void; camera: U
                     const percentage = invlerp(min, max, ii.value);
                     return (
                         <Box key={ii.name}>
-                            <Text bold={isSelected}>{isSelected ? '>' : ' '} </Text>
-                            <Box width={scale}>
+                            <Text bold={isSelected}>{isSelected ? '>' : ' '} [</Text>
+                            <Box width={scale - 2}>
                                 <Text bold={isSelected}>
-                                    {'='.repeat(Math.round(scale * percentage) + 1)}
+                                    {'='.repeat(Math.round((scale - 2) * percentage))}
                                 </Text>
                             </Box>
-                            <Text bold={isSelected}> {ii.name.replace(/_/g, ' ')}</Text>
+                            <Text bold={isSelected}>] {ii.name.replace(/_/g, ' ')}</Text>
                             <Text>
                                 [{ii.value}] ({min}-{max})
                             </Text>
@@ -156,7 +156,7 @@ const GET_MIN = 0x82; // Check if getting range is allowed;
 export default async function controls() {
     const devices = await UVCControl.discover();
     const camera = new UVCControl({
-        vid: devices[1].deviceDescriptor.idVendor
+        vid: devices[0].deviceDescriptor.idVendor
     });
 
     async function update() {
