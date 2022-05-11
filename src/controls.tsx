@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {render, Text, Box, useInput} from 'ink';
 import UVCControl from 'uvc-control';
+import Select from 'ink-select-input';
 
 type MinMax<T> = {min: T; max: T};
 
@@ -155,11 +156,22 @@ const GET_MIN = 0x82; // Check if getting range is allowed;
 
 export default async function controls() {
     const devices = await UVCControl.discover();
-    const camera = new UVCControl({
-        vid: devices[0].deviceDescriptor.idVendor
-    });
 
-    async function update() {
+    function selectInput() {
+        const handleSelect = (item) => {
+            update(item.value);
+        };
+
+        const items = devices.map(({name, deviceDescriptor}) => ({
+            label: name,
+            value: deviceDescriptor.idVendor
+        }));
+        render(<Select items={items} onSelect={handleSelect} />);
+    }
+
+    async function update(vid) {
+        const camera = new UVCControl({vid});
+        //devices[1].deviceDescriptor.idVendor
         //const values: Array<Value | Range | Boolean> = [];
         let controls: any = [];
         try {
@@ -210,11 +222,11 @@ export default async function controls() {
             });
             //console.log(values);
             //console.log(values);
-            render(<ControlView values={values} update={update} camera={camera} />);
+            render(<ControlView values={values} update={() => update(vid)} camera={camera} />);
         } catch (e) {
             console.error('Render Error:', e);
         }
     }
 
-    update();
+    selectInput();
 }
